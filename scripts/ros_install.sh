@@ -48,3 +48,32 @@ if [ ! -d "$CCWS" ]; then
     cd $CCWS/src
     catkin_init_workspace
 fi
+
+# Installing raspberry cam node from UbiquityRobotics
+
+echo "${green}Starting installation of raspicam_node ROS package...${reset}"
+echo "Adding ubiquity robotics ros source to rosdep"
+
+sudo sh -c 'echo "yaml https://raw.githubusercontent.com/UbiquityRobotics/rosdep/master/raspberry-pi.yaml" > /etc/ros/rosdep/sources.list.d/30-ubiquity.list'
+
+rosdep update
+
+cd $HOME
+
+# Install raspicam_node from sources rather than apt-get install as the latter installs a lot of redundant stuff.
+
+if [ ! -d "$HOME/raspicam_node" ]; then
+    echo "Cloning raspicam_node sources..."
+    git clone https://github.com/UbiquityRobotics/raspicam_node.git
+    cd raspicam_node
+    # Create symlink to catkin workspace.
+    ln -s $HOME/raspicam_node $CCWS/src/
+else
+    echo "Updating raspicam_node sources..."
+    cd raspicam_node
+    git pull
+fi
+
+echo "Building raspicam_node package..."
+cd $CCWS
+catkin_make
