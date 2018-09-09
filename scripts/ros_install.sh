@@ -37,3 +37,14 @@ sudo geographiclib-get-geoids egm96-5
 # Initialize rosdep
 sudo rosdep init
 rosdep update
+
+# Set the custom catkin workspace
+CCWS=$HOME/catkin_custom
+
+# Check if CCWS already exist 
+if [ ! -d "$CCWS" ]; then
+    echo "${green}Creating catkin workspace in $CCWS...${reset}"
+    mkdir -p $CCWS/src
+    cd $CCWS/src
+    catkin_init_workspace
+fi
