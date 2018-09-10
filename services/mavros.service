@@ -6,7 +6,7 @@ After=multi-user.target roscore.service
 Type=forking
 User=ubuntu
 Environment=ROS_HOSTNAME=centerrobot.local
-Environment=ROS_MASTER_URI=http://$ROS_HOSTNAME:11311
+Environment=ROS_MASTER_URI=http://centerrobot.local:11311
 ExecStartPre=/bin/sleep 15
 ExecStart=/bin/bash -c ". /opt/ros/kinetic/setup.sh; rosrun mavros mavros_node _fcu_url:=/dev/ttyACM0:921600 _gcs_url:=udp://@192.168.1.29"
 RemainAfterExit=yes
