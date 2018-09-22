@@ -35,7 +35,7 @@ namespace rc_controller
             return false;
         }
         
-        local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", QUEUE_SIZE);
+        local_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", QUEUE_SIZE);
         if(!local_pose_pub_)
         {
             ROS_INFO("Could not advertise to /mavros/setpoint_position/local");
@@ -104,6 +104,7 @@ namespace rc_controller
 
         while(ros::ok() && (ros::Time::now() - init_start < ros::Duration(wait_for_services_)))
         {
+            geometry_msgs::PoseStamped current_pose = current_pose_;
             if( current_state_.mode != "OFFBOARD" && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
             {
                 if( setmode_service_.call(offb_set_mode) && offb_set_mode.response.mode_sent)
@@ -113,7 +114,7 @@ namespace rc_controller
             } 
             else 
             {
-                if( !current_state.armed && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
+                if( !current_state_.armed && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
                 {
                     if( arming_service_.call(arm_cmd) && arm_cmd.response.success)
                     {
@@ -122,7 +123,7 @@ namespace rc_controller
                 }
             }
             last_request = ros::Time::now();
-            if( current_state_.mode != "OFFBOARD" || !current_state.armed)
+            if( current_state_.mode != "OFFBOARD" || !current_state_.armed)
             {
                 pose.pose.position.x = smoothFilter(current_pose.pose.position.x, pose.pose.position.x, smooth_factor_);
                 pose.pose.position.y = smoothFilter(current_pose.pose.position.y, pose.pose.position.y, smooth_factor_);
@@ -134,7 +135,7 @@ namespace rc_controller
             }
             pose.header.stamp    = ros::Time::now();
             pose.header.frame_id = 1;
-            local_pos_pub.publish(pose);
+            local_pose_pub_.publish(pose);
 
             ros::spinOnce();
             rate.sleep();

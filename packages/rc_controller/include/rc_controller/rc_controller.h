@@ -45,6 +45,7 @@ namespace rc_controller
 
             // subcriptions callback
             void stateCallback(const mavros_msgs::State::ConstPtr &msg);
+            void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 
     
         private:
