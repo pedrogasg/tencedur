@@ -45,18 +45,17 @@ namespace rc_controller
 
             // subcriptions callback
             void stateCallback(const mavros_msgs::State::ConstPtr &msg);
-            void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
+            void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
 
     
         private:
             class RobotModel
             {
                 public:
-                    RobotModel();
                     ~RobotModel() = default;
-                    std::string getName()             override { return "Tencendur"; }
-                    std::string getOffboardModeName() override { return "OFFBOARD"; }
-                    bool init(ros::NodeHandle& nh) override;
+                    std::string getName()             { return "Tencendur"; }
+                    std::string getOffboardModeName() { return "OFFBOARD"; }
+                    bool init(ros::NodeHandle& nh);
                 private:
                     // Ros publishers
                     ros::Publisher rc_pub_;
@@ -81,7 +80,7 @@ namespace rc_controller
             float spin_rate_         = 50.0;
             float smooth_factor_     = 0.15f;
             float wait_for_services_ = 30.0;
-            float wait_for_service_  = 5.0
+            float wait_for_service_  = 5.0;
             // Internal objects
             std::unique_ptr<RobotModel> robot_model_;
             // Saved states messages 

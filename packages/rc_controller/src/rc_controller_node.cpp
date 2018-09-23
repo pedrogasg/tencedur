@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rc_controller");
     ros::NodeHandle nh("~");
 
-    rc_control::RCController controller;
+    rc_controller::RCController controller;
     if(!controller.init(nh))
     {
         ROS_ERROR("Could not initialize RCController node!");

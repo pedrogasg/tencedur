@@ -7,17 +7,28 @@ namespace rc_controller
     {
     }
 
-    bool RCController::RobotModel::init(ros::NodeHandle& nh)
+    bool RCController::RobotModel::init(ros::NodeHandle &nh)
     {
         const int QUEUE_SIZE = 1;
-        robot_model_ = std::make_unique<RobotModel>();
         rc_pub_ = nh.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", QUEUE_SIZE);
         if(!rc_pub_)
         {
             ROS_INFO("Could not advertise to /mavros/rc/override");
             return false;
         }
+        return true;
+    }
+
+    bool RCController::init(ros::NodeHandle& nh)
+    {
+        const int QUEUE_SIZE = 5;
         robot_model_ = std::make_unique<RobotModel>();
+
+        if(!robot_model_->init(nh))
+        {
+            ROS_INFO("Unable to start the robot");
+        }
+        
         arming_service_ = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
         setmode_service_ = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
         
