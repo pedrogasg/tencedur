@@ -8,13 +8,6 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rc_controller");
     ros::NodeHandle nh;
 
-    //rc_controller::RCOffboardController controller;
-    // if(!controller.arm(nh))
-    // {
-    //     ROS_ERROR("Could not arm Robot FCU!");
-    //     return -1;
-    // }
-
     rc_controller::RCController controller;
     if(!controller.init(nh))
     {

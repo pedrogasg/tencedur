@@ -112,38 +112,13 @@ namespace rc_controller
 
         ros::Time last_request = ros::Time::now();
         ros::Time init_start   = ros::Time::now();
-        // while(ros::ok()){
-        //     if( current_state_.mode != "OFFBOARD" &&
-        //         (ros::Time::now() - last_request > ros::Duration(5.0))){
-        //         if( setmode_service_.call(offb_set_mode) &&
-        //             offb_set_mode.response.mode_sent){
-        //             ROS_INFO("%s/n", current_state_.mode.c_str());
-        //             ROS_INFO("Offboard enabled");
-        //         }
-        //         last_request = ros::Time::now();
-        //     } else {
-        //         if( !current_state_.armed &&
-        //             (ros::Time::now() - last_request > ros::Duration(5.0))){
-        //             if( arming_service_.call(arm_cmd) &&
-        //                 arm_cmd.response.success){
-        //                 ROS_INFO("Vehicle armed");
-        //             }
-        //             last_request = ros::Time::now();
-        //         }
-        //     }
 
-        //     local_pose_pub_.publish(pose);
-
-        //     ros::spinOnce();
-        //     rate.sleep();
-        // }
         while(ros::ok() && (ros::Time::now() - init_start < ros::Duration(wait_for_services_)))
         {
             geometry_msgs::PoseStamped current_pose = current_pose_;
-
+ 
             if (current_state_.mode != "OFFBOARD" && (ros::Time::now() - last_request > ros::Duration(5.0)))
             {
-                // Enable OFFBOARD mode
                 if (setmode_service_.call(offb_set_mode) && offb_set_mode.response.mode_sent)
                 {
                     ROS_INFO("Offboard enabled");
@@ -188,8 +163,14 @@ namespace rc_controller
     void RCController::spin()
     {
         ros::Rate rate(spin_rate_);
+        geometry_msgs::PoseStamped current_pose = current_pose_;
+
+        geometry_msgs::PoseStamped pose = current_pose;
         while (ros::ok())
         {
+            pose.header.stamp    = ros::Time::now();
+            pose.header.frame_id = 1;
+            local_pose_pub_.publish(pose);
             ros::spinOnce();
             rate.sleep();
         }
