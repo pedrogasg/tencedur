@@ -77,7 +77,7 @@ namespace rc_controller
 
         private:
             // Ros parameters
-            float spin_rate_         = 50.0;
+            float spin_rate_         = 20.0;
             float smooth_factor_     = 0.15f;
             float wait_for_services_ = 30.0;
             float wait_for_service_  = 5.0;

@@ -78,7 +78,7 @@ namespace rc_controller
 
         pose.pose.position.x = 0;
         pose.pose.position.y = 0;
-        pose.pose.position.z = 0;
+        pose.pose.position.z = 2;
 
         ROS_INFO("Stabilize current pose before warmup...");
 
@@ -116,33 +116,37 @@ namespace rc_controller
         while(ros::ok() && (ros::Time::now() - init_start < ros::Duration(wait_for_services_)))
         {
             geometry_msgs::PoseStamped current_pose = current_pose_;
-            if( current_state_.mode != "OFFBOARD" && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
+ 
+            if (current_state_.mode != "OFFBOARD" && (ros::Time::now() - last_request > ros::Duration(5.0)))
             {
-                if( setmode_service_.call(offb_set_mode) && offb_set_mode.response.mode_sent)
+                if (setmode_service_.call(offb_set_mode) && offb_set_mode.response.mode_sent)
                 {
                     ROS_INFO("Offboard enabled");
                 }
-            } 
-            else 
+                last_request = ros::Time::now();
+            }
+            else
             {
-                if( !current_state_.armed && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
+                if (!current_state_.armed && (ros::Time::now() - last_request > ros::Duration(5.0)))
                 {
-                    if( arming_service_.call(arm_cmd) && arm_cmd.response.success)
+                    if (arming_service_.call(arm_cmd) && arm_cmd.response.success)
                     {
                         ROS_INFO("Vehicle armed");
+                        return true;
                     }
+                    last_request = ros::Time::now();
+                }
+                else if(current_state_.armed)
+                {
+                    ROS_INFO("Vehicle was already armed");
+                    return true;
                 }
             }
-            last_request = ros::Time::now();
-            if( current_state_.mode != "OFFBOARD" || !current_state_.armed)
+            if (current_state_.mode != "OFFBOARD" || !current_state_.armed)
             {
                 pose.pose.position.x = smoothFilter(current_pose.pose.position.x, pose.pose.position.x, smooth_factor_);
                 pose.pose.position.y = smoothFilter(current_pose.pose.position.y, pose.pose.position.y, smooth_factor_);
                 pose.pose.position.z = smoothFilter(current_pose.pose.position.z, pose.pose.position.z, smooth_factor_);
-            }
-            else
-            {
-                return true;
             }
             pose.header.stamp    = ros::Time::now();
             pose.header.frame_id = 1;
@@ -159,8 +163,14 @@ namespace rc_controller
     void RCController::spin()
     {
         ros::Rate rate(spin_rate_);
+        geometry_msgs::PoseStamped current_pose = current_pose_;
+
+        geometry_msgs::PoseStamped pose = current_pose;
         while (ros::ok())
         {
+            pose.header.stamp    = ros::Time::now();
+            pose.header.frame_id = 1;
+            local_pose_pub_.publish(pose);
             ros::spinOnce();
             rate.sleep();
         }
@@ -170,6 +180,7 @@ namespace rc_controller
     void RCController::stateCallback(const mavros_msgs::State::ConstPtr &msg)
     {
         current_state_ = *msg;
+        ROS_INFO("%s/n", current_state_.mode.c_str());
     }
 
     void RCController::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)

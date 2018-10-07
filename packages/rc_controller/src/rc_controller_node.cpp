@@ -6,7 +6,7 @@ int main(int argc, char **argv)
     ROS_INFO("Starting rc_controller ROS node...");
 
     ros::init(argc, argv, "rc_controller");
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh;
 
     rc_controller::RCController controller;
     if(!controller.init(nh))
