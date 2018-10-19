@@ -78,7 +78,7 @@ namespace rc_controller
 
         pose.pose.position.x = 0;
         pose.pose.position.y = 0;
-        pose.pose.position.z = 2;
+        pose.pose.position.z = 0;
 
         ROS_INFO("Stabilize current pose before warmup...");
 
@@ -105,7 +105,7 @@ namespace rc_controller
         }
 
         mavros_msgs::SetMode offb_set_mode;
-        offb_set_mode.request.custom_mode = "OFFBOARD";
+        offb_set_mode.request.custom_mode = robot_model_->getOffboardModeName();
 
         mavros_msgs::CommandBool arm_cmd;
         arm_cmd.request.value = true;
@@ -117,7 +117,7 @@ namespace rc_controller
         {
             geometry_msgs::PoseStamped current_pose = current_pose_;
  
-            if (current_state_.mode != "OFFBOARD" && (ros::Time::now() - last_request > ros::Duration(5.0)))
+            if (current_state_.mode != robot_model_->getOffboardModeName() && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
             {
                 if (setmode_service_.call(offb_set_mode) && offb_set_mode.response.mode_sent)
                 {
@@ -127,7 +127,7 @@ namespace rc_controller
             }
             else
             {
-                if (!current_state_.armed && (ros::Time::now() - last_request > ros::Duration(5.0)))
+                if (!current_state_.armed && (ros::Time::now() - last_request > ros::Duration(wait_for_service_)))
                 {
                     if (arming_service_.call(arm_cmd) && arm_cmd.response.success)
                     {
@@ -142,7 +142,7 @@ namespace rc_controller
                     return true;
                 }
             }
-            if (current_state_.mode != "OFFBOARD" || !current_state_.armed)
+            if (current_state_.mode != robot_model_->getOffboardModeName() || !current_state_.armed)
             {
                 pose.pose.position.x = smoothFilter(current_pose.pose.position.x, pose.pose.position.x, smooth_factor_);
                 pose.pose.position.y = smoothFilter(current_pose.pose.position.y, pose.pose.position.y, smooth_factor_);
@@ -170,6 +170,9 @@ namespace rc_controller
         {
             pose.header.stamp    = ros::Time::now();
             pose.header.frame_id = 1;
+            pose.pose.position.x = 2;
+            pose.pose.position.y = 2;
+            pose.pose.position.z = 0;
             local_pose_pub_.publish(pose);
             ros::spinOnce();
             rate.sleep();
@@ -180,7 +183,6 @@ namespace rc_controller
     void RCController::stateCallback(const mavros_msgs::State::ConstPtr &msg)
     {
         current_state_ = *msg;
-        ROS_INFO("%s/n", current_state_.mode.c_str());
     }
 
     void RCController::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
@@ -191,6 +193,31 @@ namespace rc_controller
     inline float RCController::smoothFilter(float cur, float prev, float factor) const
     {
         return factor * cur + (1.0f - factor) * prev;
+    }
+
+    inline geometry_msgs::Point RCController::computeNextPosePosition(
+    geometry_msgs::PoseStamped& current_pose,
+    float linear_control_val,
+    float angular_control_val,
+    float linear_speed ) const
+    {
+        // Create movement vector in the "body" frame (it is still in mavros frame of reference)
+        Eigen::Vector3d movement_vector(linear_control_val, angular_control_val, 0);
+        movement_vector *= linear_speed;
+
+        // Convert movement_vector to the inertial frame based on current pose and compute new position
+        Eigen::Quaterniond current_orientation;
+        tf::quaternionMsgToEigen(current_pose.pose.orientation, current_orientation);
+        Eigen::Matrix3d rotation_mat = current_orientation.toRotationMatrix();
+        movement_vector = rotation_mat * movement_vector;
+
+        Eigen::Vector3d current_position;
+        tf::pointMsgToEigen(current_pose.pose.position, current_position);
+        Eigen::Vector3d new_position = current_position + movement_vector;
+        geometry_msgs::Point next_pose;
+        tf::pointEigenToMsg(new_position, next_pose);
+
+        return next_pose;
     }
 
 }
