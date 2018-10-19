@@ -74,6 +74,11 @@ namespace rc_controller
 
         private:
             float smoothFilter(float cur, float prev, float factor) const;
+            geometry_msgs::Point computeNextPosePosition(
+                geometry_msgs::PoseStamped& current_pose,
+                float linear_control_val,
+                float angular_control_val,
+                float linear_speed ) const;
 
         private:
             // Ros parameters
