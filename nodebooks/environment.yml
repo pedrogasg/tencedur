@@ -6,9 +6,11 @@ dependencies:
 - pip
 - numpy=1.15.1
 - matplotlib=3.0.0
+ cython
+- pandas
 - pip:
   - opencv-contrib-python==3.4.3.18
   - jupyter
-  - tensorflow==1.11.0
+  - tensorflow==1.12.0
   - scipy
   - scikit-image

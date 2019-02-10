@@ -60,7 +60,7 @@ rosdep update
 
 cd $HOME
 
-# Install raspicam_node from sources rather than apt-get install as the latter installs a lot of redundant stuff.
+# Install raspicam_node from sources rather than apt-get install as the later installs a lot of redundant stuff.
 
 if [ ! -d "$HOME/raspicam_node" ]; then
     echo "Cloning raspicam_node sources..."
