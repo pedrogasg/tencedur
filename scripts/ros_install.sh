@@ -74,7 +74,7 @@ else
     git pull
 fi
 
-if [ ! -d "$HOME/tencendur" ]; then
+if [ -d "$HOME/tencendur" ]; then
 
     if [ ! -d "$CCWS/src/rc_controller" ]; then
         ln -s $HOME/tencendur/packages/rc_controller $CCWS/src/
