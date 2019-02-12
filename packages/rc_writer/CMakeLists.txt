@@ -10,7 +10,6 @@ project(rc_writer)
 find_package(catkin REQUIRED COMPONENTS
   compressed_image_transport
   cv_bridge
-  opencv2
   raspicam_node
   rospy
   sensor_msgs
@@ -110,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES rc_writer
-#  CATKIN_DEPENDS compressed_image_transport cv_bridge opencv2 raspicam_node rospy sensor_msgs std_msgs std_srvs
+#  CATKIN_DEPENDS compressed_image_transport cv_bridge raspicam_node rospy sensor_msgs std_msgs std_srvs
 #  DEPENDS system_lib
 )
 
