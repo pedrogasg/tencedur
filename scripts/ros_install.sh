@@ -74,6 +74,17 @@ else
     git pull
 fi
 
+if [ ! -d "$HOME/tencendur" ]; then
+
+    if [ ! -d "$CCWS/src/rc_controller" ]; then
+        ln -s $HOME/tencendur/packages/rc_controller $CCWS/src/
+    fi
+
+    if [ ! -d "$CCWS/src/rc_writer" ]; then
+        ln -s $HOME/tencendur/packages/rc_writer $CCWS/src/
+    fi
+fi
+
 echo "Building raspicam_node package..."
 cd $CCWS
 catkin_make
