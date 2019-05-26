@@ -64,8 +64,9 @@ cd $HOME
 
 if [ ! -d "$HOME/raspicam_node" ]; then
     echo "Cloning raspicam_node sources..."
-    git clone https://github.com/UbiquityRobotics/raspicam_node.git
+    git clone https://github.com/pedrogasg/raspicam_node.git
     cd raspicam_node
+    git checkout tencendur
     # Create symlink to catkin workspace.
     ln -s $HOME/raspicam_node $CCWS/src/
 else
