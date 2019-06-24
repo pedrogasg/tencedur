@@ -60,20 +60,6 @@ rosdep update
 
 cd $HOME
 
-# Install raspicam_node from sources rather than apt-get install as the latter installs a lot of redundant stuff.
-
-if [ ! -d "$HOME/raspicam_node" ]; then
-    echo "Cloning raspicam_node sources..."
-    git clone https://github.com/UbiquityRobotics/raspicam_node.git
-    cd raspicam_node
-    # Create symlink to catkin workspace.
-    ln -s $HOME/raspicam_node $CCWS/src/
-else
-    echo "Updating raspicam_node sources..."
-    cd raspicam_node
-    git pull
-fi
-
-echo "Building raspicam_node package..."
+echo "${green}Building ros nodes package...${reset}"
 cd $CCWS
 catkin_make
